@@ -24,7 +24,7 @@ password = args.password
 
 # Get username and password from environment if not provided
 if username is None and password is None:
-    username = os.environ.get("BYU_USERNAME")
-    password = os.environ.get("BYU_PASSWORD")
+    username = os.environ.get("CMU_USERNAME")
+    password = os.environ.get("CMU_PASSWORD")
 
 handshake(username, password, args.query, args.headless)

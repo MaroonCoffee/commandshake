@@ -25,7 +25,7 @@ def handshake(
 
     # Go to search url (it will first redirect for auth)
     driver.get(
-        f"https://byu.joinhandshake.com/postings?page=1&per_page={num_results}&sort_direction=desc&sort_column=default&query={job_query}"
+        f"https://cmu.joinhandshake.com/stu/postings?page=1&per_page={num_results}&sort_direction=desc&sort_column=default&job.job_types{job_query}"
     )
 
     # Handle login
@@ -39,13 +39,13 @@ def handshake(
     username_input = driver.find_element(By.ID, "username")
     username_input.send_keys(username)
 
-    password_input = driver.find_element(By.ID, "password")
+    password_input = driver.find_element(By.ID, "passwordinput")
     password_input.send_keys(password)
 
     password_input.send_keys(Keys.ENTER)  # Press enter to submit login
 
     # Give time to do DUO two-factor auth and redirect to postings page
-    sleep(20)
+    sleep(15)
 
     # Bypass the remember this computer screen
     trust_browser_btn = driver.find_element(By.ID, "trust-browser-button")
@@ -55,7 +55,7 @@ def handshake(
     trust_browser_btn.click()
 
     # Give time to finish bypass
-    sleep(20)
+    sleep(8)
 
     num_applies = 0  # Keeps track of how many times you applied successfully
 
@@ -77,13 +77,13 @@ def handshake(
         posting_company = "?"
         posting_name_results = driver.find_elements(
             By.XPATH,
-            '//*[@id="skip-to-content"]/div[3]/div/div[1]/div/form/div[2]/div/div/div[2]/div[1]/div[1]/h1/a',
+            '//*[@id="skip-to-content"]/div[4]/div/div[1]/div/div/form/div[2]/div/div/div[2]/div[1]/div[1]/h1/a',
         )
         if len(posting_name_results) == 1:
             posting_name = posting_name_results[0].text
         posting_company_results = driver.find_elements(
             By.XPATH,
-            '//*[@id="skip-to-content"]/div[3]/div/div[1]/div/form/div[2]/div/div/div[2]/div[1]/div[1]/div[2]/div/div[2]/a',
+            '//*[@id="skip-to-content"]/div[4]/div/div[1]/div/div/form/div[2]/div/div/div[2]/div[1]/div[1]/div[3]/div/div[2]/a',
         )
         if len(posting_company_results) == 1:
             posting_company = posting_company_results[0].text
@@ -92,13 +92,13 @@ def handshake(
 
         # Check if there's a 'Quick Apply' button
         apply_btn_results = driver.find_elements(
-            By.XPATH, '//button/span/div[text()="Quick Apply"]'
+            By.XPATH, '//span[1]/button[text()="Quick Apply"]'
         )
         has_quick_apply = True if len(apply_btn_results) > 1 else False
 
         if len(apply_btn_results) == 0:  # Check for normal apply if no luck
             apply_btn_results = driver.find_elements(
-                By.XPATH, '//button/span/div[text()="Apply"]'
+                By.XPATH, '//span[1]/button[text()="Apply"]'
             )
 
         # If there is one
@@ -123,7 +123,7 @@ def handshake(
                 # If there's no add resume button, skip over that posting
                 add_resume_btn_results = driver.find_elements(
                     By.XPATH,
-                    "/html/body/reach-portal/div[3]/div/div/div/span/form/div[1]/div/div[2]/fieldset/div/div[2]/span[1]/button",
+                    "/html/body/reach-portal/div[3]/div/div/div/span/form/div[1]/div/div/fieldset/div/div[2]/span[1]/button",
                 )
                 if len(add_resume_btn_results) == 0:
                     exit_posting_btn.click()
@@ -146,6 +146,14 @@ def handshake(
             submit_btn.click()
             sleep(2)
 
+            submit_btn_results = driver.find_elements(
+                By.XPATH, '//span/div/button/span[text()="Submit Application"]'
+            )
+            if len(submit_btn_results) != 0:
+                exit_posting_btn.click()
+                sleep(2)
+                continue
+
             # Success cleanup
 
             jobs_applied.append(posting_headline)
@@ -165,5 +173,5 @@ def handshake(
     )
     for job in jobs_applied:
         print(job)
-    APP_RESULTS_URL = "https://byu.joinhandshake.com/applications?ref=account-dropdown"
+    APP_RESULTS_URL = "https://cmu.joinhandshake.com/applications?ref=account-dropdown"
     print(f"Visit {APP_RESULTS_URL} for details on where you applied.")
